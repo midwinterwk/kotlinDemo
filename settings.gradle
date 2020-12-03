@@ -1,2 +1,3 @@
 include ':app'
+include ':writinglibrary'
 rootProject.name = "KotlinDemo"
