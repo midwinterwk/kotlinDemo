@@ -5,7 +5,10 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application>
-        <activity android:name=".WritingMainActivity"></activity>
+        <activity android:name=".WritingMainActivity"
+            android:screenOrientation="landscape">
+
+        </activity>
     </application>
 
 </manifest>

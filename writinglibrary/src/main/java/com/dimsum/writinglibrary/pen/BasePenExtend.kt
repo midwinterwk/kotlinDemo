@@ -4,12 +4,10 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.view.MotionEvent
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 abstract class BasePenExtend(context: Context) : BasePen() {
     open val TAG = BasePenExtend::class.java.simpleName
+    protected var mContext: Context
 
     var mHWPointList: ArrayList<ControllerPoint>? = ArrayList<ControllerPoint>()
     var mPointList: ArrayList<ControllerPoint> = ArrayList<ControllerPoint>()
@@ -27,7 +25,11 @@ abstract class BasePenExtend(context: Context) : BasePen() {
 
     private lateinit var mListener: UpdateListener
 
-    fun setPaint(paint: Paint) {
+    init {
+        mContext = context
+    }
+
+    open fun setPaint(paint: Paint) {
         mPaint = paint
         mBaseWidth = paint.strokeWidth
     }
@@ -37,6 +39,7 @@ abstract class BasePenExtend(context: Context) : BasePen() {
         if (mHWPointList == null || mHWPointList!!.size < 1) return
 
         mCurPoint = mHWPointList!![0]
+        mPaint!!.color = mCurPoint!!.color
         drawNeetToDo(canvas)
     }
 
@@ -96,6 +99,7 @@ abstract class BasePenExtend(context: Context) : BasePen() {
         }
         //down下的点的宽度
         curPoint.width = mLastWidth
+        curPoint.color = mPaint!!.color
         mLastVel = 0F
         mPointList.add(curPoint)
 

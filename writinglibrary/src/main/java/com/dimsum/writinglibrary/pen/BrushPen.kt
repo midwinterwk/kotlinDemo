@@ -1,18 +1,62 @@
 package com.dimsum.writinglibrary.pen
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.RectF
+import android.graphics.*
 import android.util.Log
+import com.dimsum.writinglibrary.R
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+
 class BrushPen(context: Context?) : BasePenExtend(context!!) {
     override val TAG = BrushPen::class.java.simpleName
 
+    private var mBitmap: Bitmap? = null
+
+    //第一个Rect 代表要绘制的bitmap 区域，
+    protected var mOldRect: Rect = Rect()
+
+    //第二个 Rect 代表的是要将bitmap 绘制在屏幕的什么地方
+    protected var mNeedDrawRect = RectF()
+    protected var mOriginBitmap: Bitmap? = null
+
+    init {
+        initTexture()
+    }
+
+    /**
+     * 由于需要画笔piant中的一些信息，就不能让paint为null，所以setBitmap需要有paint的时候设置
+     * @param paint
+     */
+    override fun setPaint(paint: Paint) {
+        super.setPaint(paint)
+        mBitmap = makeTintBitmap(mOriginBitmap, mPaint?.color)
+        mOldRect.set(0, 0, mBitmap!!.width, mBitmap!!.height)
+    }
+
+    private fun initTexture() {
+        //通过资源文件生成的原始的bitmap区域 后面的资源图有些更加有意识的东西
+        mOriginBitmap = BitmapFactory.decodeResource(
+                mContext.getResources(), R.mipmap.spot)
+    }
+
+
+    fun makeTintBitmap(inputBitmap: Bitmap?, tintColor: Int?): Bitmap? {
+        if (inputBitmap == null || tintColor == null) {
+            return null
+        }
+        val outputBitmap = Bitmap.createBitmap(inputBitmap.width, inputBitmap.height, inputBitmap.config)
+        val canvas = Canvas(outputBitmap)
+        val paint = Paint()
+        paint.colorFilter = PorterDuffColorFilter(tintColor, PorterDuff.Mode.SRC_IN)
+        canvas.drawBitmap(inputBitmap, 0f, 0f, paint)
+        return outputBitmap
+    }
+
     override fun drawNeetToDo(canvas: Canvas?) {
+        mBitmap = makeTintBitmap(mOriginBitmap, mPaint?.color)
+        mOldRect.set(0, 0, mBitmap!!.width, mBitmap!!.height)
         for (i in 0 until mHWPointList!!.size) {
             val point = mHWPointList!![i]
             if (point.isPoint) {
@@ -72,14 +116,12 @@ class BrushPen(context: Context?) : BasePenExtend(context!!) {
         var y = y0
         var w = w0
         for (i in 0 until steps) {
-            //都是用于表示坐标系中的一块矩形区域，并可以对其做一些简单操作
-            //精度不一样。Rect是使用int类型作为数值，RectF是使用float类型作为数值。
-            //            Rect rect = new Rect();
-            val oval = RectF()
-            oval.set((x - w / 4.0f).toFloat(), (y - w / 2.0f).toFloat(), (x + w / 4.0f).toFloat(), (y + w / 2.0f).toFloat())
-            // oval.set((float)(x+w/4.0f), (float)(y+w/4.0f), (float)(x-w/4.0f), (float)(y-w/4.0f));
-            //最基本的实现，通过点控制线，绘制椭圆
-            canvas.drawOval(oval, paint)
+            //根据点的信息计算出需要把bitmap绘制在什么地方
+            mNeedDrawRect.set((x - w / 2.0f).toFloat(), (y - w / 2.0f).toFloat(),
+                    (x + w / 2.0f).toFloat(), (y + w / 2.0f).toFloat())
+
+            //第一个Rect 代表要绘制的bitmap 区域，第二个 Rect 代表的是要将bitmap 绘制在屏幕的什么地方
+            canvas.drawBitmap(mBitmap!!, mOldRect, mNeedDrawRect, paint)
             x += deltaX
             y += deltaY
             w += deltaW
@@ -87,13 +129,20 @@ class BrushPen(context: Context?) : BasePenExtend(context!!) {
     }
 
     override fun drawPoint(canvas: Canvas, point: ControllerPoint, paint: Paint) {
-        val x = point.x.toDouble()
-        val y = point.y.toDouble()
+        var x = point.x.toDouble()
+        var y = point.y.toDouble()
         val w = point.width.toDouble()
         Log.d(TAG, "w = " + w)
-        val oval = RectF()
-        oval.set((x - w / 4.0f).toFloat(), (y - w / 2.0f).toFloat(), (x + w / 4.0f).toFloat(), (y + w / 2.0f).toFloat())
-        canvas.drawOval(oval, paint)
+
+        for (i in 0..2) {
+            x++
+            y++
+            //根据点的信息计算出需要把bitmap绘制在什么地方
+            mNeedDrawRect.set((x - w / 2.0f).toFloat(), (y - w / 2.0f).toFloat(),
+                    (x + w / 2.0f).toFloat(), (y + w / 2.0f).toFloat())
+            //第一个Rect 代表要绘制的bitmap 区域，第二个 Rect 代表的是要将bitmap 绘制在屏幕的什么地方
+            canvas.drawBitmap(mBitmap!!, mOldRect, mNeedDrawRect, paint)
+        }
     }
 
     override fun calcPoint(point: ControllerPoint) {

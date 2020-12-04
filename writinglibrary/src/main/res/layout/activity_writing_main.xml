@@ -8,87 +8,128 @@
 
     <com.dimsum.writinglibrary.pen.DrawPenView
         android:id="@+id/drawPenView"
+        android:background="#FFFFFF"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <Button
-        android:id="@+id/btn_brush"
-        android:layout_width="wrap_content"
-        android:layout_height="51dp"
-        android:text="BRUSH"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_setting"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+        <Button
+            android:id="@+id/btn_brush"
+            android:layout_width="wrap_content"
+            android:layout_height="51dp"
+            android:text="BRUSH"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/btn_pen"
-        android:layout_width="wrap_content"
-        android:layout_height="51dp"
-        android:text="STEEL"
-        app:layout_constraintEnd_toEndOf="@+id/btn_brush"
-        app:layout_constraintTop_toBottomOf="@+id/btn_brush" />
+        <Button
+            android:id="@+id/btn_pen"
+            android:layout_width="wrap_content"
+            android:layout_height="51dp"
+            android:text="STEEL"
+            app:layout_constraintEnd_toEndOf="@+id/btn_brush"
+            app:layout_constraintTop_toBottomOf="@+id/btn_brush" />
 
-    <Button
-        android:id="@+id/btn_undo"
-        android:layout_width="wrap_content"
-        android:layout_height="51dp"
-        android:layout_marginTop="1dp"
-        android:text="UNDO"
-        app:layout_constraintEnd_toEndOf="@+id/btn_pen"
-        app:layout_constraintTop_toBottomOf="@+id/btn_pen" />
+        <Button
+            android:id="@+id/btn_undo"
+            android:layout_width="wrap_content"
+            android:layout_height="51dp"
+            android:layout_marginTop="1dp"
+            android:text="UNDO"
+            app:layout_constraintEnd_toEndOf="@+id/btn_pen"
+            app:layout_constraintTop_toBottomOf="@+id/btn_pen" />
 
-    <Button
-        android:id="@+id/btn_clear"
-        android:layout_width="wrap_content"
-        android:layout_height="51dp"
-        android:layout_marginTop="2dp"
-        android:text="ClEAR"
-        app:layout_constraintEnd_toEndOf="@+id/btn_undo"
-        app:layout_constraintTop_toBottomOf="@+id/btn_undo" />
+        <Button
+            android:id="@+id/btn_clear"
+            android:layout_width="wrap_content"
+            android:layout_height="51dp"
+            android:layout_marginTop="2dp"
+            android:text="ClEAR"
+            app:layout_constraintEnd_toEndOf="@+id/btn_undo"
+            app:layout_constraintTop_toBottomOf="@+id/btn_undo" />
 
-    <Button
-        android:id="@+id/btn_color"
-        android:layout_width="wrap_content"
-        android:layout_height="51dp"
-        android:text="COLOR"
-        app:layout_constraintEnd_toEndOf="@+id/btn_clear"
-        app:layout_constraintTop_toBottomOf="@+id/btn_clear" />
+        <Button
+            android:id="@+id/btn_color"
+            android:layout_width="wrap_content"
+            android:layout_height="51dp"
+            android:text="COLOR"
+            app:layout_constraintEnd_toEndOf="@+id/btn_clear"
+            app:layout_constraintTop_toBottomOf="@+id/btn_clear" />
 
-    <Button
-        android:id="@+id/btn_save"
+        <Button
+            android:id="@+id/btn_save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SAVE"
+            app:layout_constraintEnd_toEndOf="@+id/btn_color"
+            app:layout_constraintTop_toBottomOf="@+id/btn_color" />
+
+        <Button
+            android:id="@+id/btn_scale"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SCALE"
+            app:layout_constraintEnd_toEndOf="@+id/btn_save"
+            app:layout_constraintTop_toBottomOf="@+id/btn_save" />
+
+        <Button
+            android:id="@+id/btn_background"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="BG"
+            app:layout_constraintEnd_toEndOf="@+id/btn_scale"
+            app:layout_constraintTop_toBottomOf="@+id/btn_scale" />
+
+        <SeekBar
+            android:id="@+id/seekBar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintWidth_percent="0.2"
+            android:maxHeight="10dp"
+            android:minHeight="4dp"
+            android:progress="50"
+            app:layout_constraintBottom_toTopOf="@+id/tv_progress"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="80dp"
+            android:textColor="#FF00FF"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/seekBar" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_show"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintHeight_percent="0.2"
+            app:layout_constraintWidth_percent="0.8"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ImageView
+        android:id="@+id/iv_setting"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="SAVE"
-        app:layout_constraintEnd_toEndOf="@+id/btn_color"
-        app:layout_constraintTop_toBottomOf="@+id/btn_color" />
-
-    <SeekBar
-        android:id="@+id/seekBar"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintWidth_percent="0.2"
-        android:maxHeight="10dp"
-        android:minHeight="4dp"
-        android:progress="50"
-        app:layout_constraintBottom_toTopOf="@+id/tv_progress"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <TextView
-        android:id="@+id/tv_progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:textColor="#FF00FF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/seekBar" />
+        android:background="@drawable/ic_add_60" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_show"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintHeight_percent="0.2"
-        app:layout_constraintWidth_percent="0.8"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+    <!--    <top.defaults.colorpicker.ColorPickerView-->
+<!--        android:id="@+id/colorPicker"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        app:enableBrightness="true"-->
+<!--        app:enableAlpha="true"-->
+<!--        app:layout_constraintLeft_toLeftOf="parent"-->
+<!--        app:layout_constraintRight_toRightOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent"/>-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

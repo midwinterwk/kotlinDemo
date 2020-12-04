@@ -1,10 +1,17 @@
 package com.dimsum.writinglibrary
 
+import android.app.Activity
+import android.content.Intent
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Rect
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.View
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
+import android.view.animation.RotateAnimation
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.appcompat.app.AppCompatActivity
@@ -20,6 +27,7 @@ import top.defaults.colorpicker.ColorPickerPopup.ColorPickerObserver
 class WritingMainActivity : AppCompatActivity() {
 
     private lateinit var popup: ColorPickerPopup
+    private var isSettingShow: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,8 +38,12 @@ class WritingMainActivity : AppCompatActivity() {
         btn_clear.setOnClickListener(this::onClick)
         btn_color.setOnClickListener(this::onClick)
         btn_save.setOnClickListener(this::onClick)
+        btn_scale.setOnClickListener(this::onClick)
+        btn_background.setOnClickListener(this::onClick)
+        iv_setting.setOnClickListener(this::onClick)
         seekBar.setOnSeekBarChangeListener(onSeekBarChangeListener)
 
+//        colorPicker.subscribe { color, _ -> drawPenView.resetColor(color)}
         popup = ColorPickerPopup.Builder(this)
                 .initialColor(Color.RED)
                 .enableAlpha(true) // Enable alpha slider or not
@@ -46,7 +58,7 @@ class WritingMainActivity : AppCompatActivity() {
         super.onResume()
         drawPenView.setCanvasCode(IPenConfig.STROKE_TYPE_BRUSH)
         setStrokeWidth(60)
-        rv_show.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL,false)
+        rv_show.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL,true)
         rv_show.adapter = BitmapAdapter(this, drawPenView.pathList)
         rv_show.addItemDecoration(object :RecyclerView.ItemDecoration() {
             override fun getItemOffsets(outRect: Rect, itemPosition: Int, parent: RecyclerView) {
@@ -79,9 +91,40 @@ class WritingMainActivity : AppCompatActivity() {
                     override fun onColorPicked(color: Int) {
                         drawPenView.resetColor(color)
                     }
-                    override fun onColor(color: Int, fromUser: Boolean) {}
+                    override fun onColor(color: Int, fromUser: Boolean) {
+                        drawPenView.resetColor(color)
+                    }
                 })
+            R.id.btn_scale -> drawPenView.mIsCanvasDraw = false
+            R.id.btn_background -> {
+                val intent = Intent(Intent.ACTION_PICK, null)
+                intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        "image/*")
+                startActivityForResult(intent, 0x1)
+            }
+            R.id.iv_setting -> {
+                rotate(v)
+                if (isSettingShow) {
+                    fadeOut(cl_setting)
+                    v.setBackgroundResource(R.drawable.ic_add_60)
+                    isSettingShow = false
+                } else {
+                    fadeIn(cl_setting)
+                    v.setBackgroundResource(R.drawable.ic_close_60)
+                    isSettingShow = true
+                }
+            }
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == 0x1 && resultCode == Activity.RESULT_OK) {
+            if (data != null) {
+                val bitmap = BitmapFactory.decodeStream(contentResolver.openInputStream(data.data!!))
+                drawPenView.resetBackground(bitmap)
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
     private fun setStrokeWidth(progress: Int) {
@@ -104,5 +147,34 @@ class WritingMainActivity : AppCompatActivity() {
         }
     }
 
+
+    fun fadeIn(view: View, startAlpha: Float, endAlpha: Float, duration: Long) {
+        if (view.visibility == View.VISIBLE) return
+        view.visibility = View.VISIBLE
+        val animation: Animation = AlphaAnimation(startAlpha, endAlpha)
+        animation.duration = duration
+        view.startAnimation(animation)
+    }
+
+    fun fadeIn(view: View) {
+        fadeIn(view, 0f, 1f, 400)
+        view.isEnabled = true
+    }
+
+    fun fadeOut(view: View) {
+        if (view.visibility != View.VISIBLE) return
+
+        view.isEnabled = false
+        val animation: Animation = AlphaAnimation(1f, 0f)
+        animation.duration = 400
+        view.startAnimation(animation)
+        view.visibility = View.GONE
+    }
+
+    fun rotate(view: View) {
+        val animation: Animation = RotateAnimation(0f ,90f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
+        animation.duration = 400
+        view.startAnimation(animation)
+    }
 
 }

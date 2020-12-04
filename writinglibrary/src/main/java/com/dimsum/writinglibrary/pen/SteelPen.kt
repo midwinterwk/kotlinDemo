@@ -82,7 +82,6 @@ class SteelPen(context: Context?) : BasePenExtend(context!!) {
             //            Rect rect = new Rect();
             val oval = RectF()
             oval.set((x - w / 4.0f).toFloat(), (y - w / 2.0f).toFloat(), (x + w / 4.0f).toFloat(), (y + w / 2.0f).toFloat())
-            // oval.set((float)(x+w/4.0f), (float)(y+w/4.0f), (float)(x-w/4.0f), (float)(y-w/4.0f));
             //最基本的实现，通过点控制线，绘制椭圆
             canvas.drawOval(oval, paint)
             x += deltaX
