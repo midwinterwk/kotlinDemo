@@ -12,7 +12,12 @@ interface IPenConfig {
         /**
          * 清除画布
          */
-        const val STROKE_TYPE_ERASER = 0
+        const val STROKE_TYPE_CLEAR = 0
+
+        /**
+         * 橡皮擦
+         */
+        const val STROKE_TYPE_ERASER = -2
 
         /**
          * 撤销
@@ -42,7 +47,7 @@ interface IPenConfig {
         }
 
         //笔的颜色
-        var PEN_CORLOUR = Color.parseColor("#111111")
+        var PEN_COLOUR = Color.BLACK
 
         //这个控制笔锋的控制值
         const val DIS_VEL_CAL_FACTOR = 0.02f

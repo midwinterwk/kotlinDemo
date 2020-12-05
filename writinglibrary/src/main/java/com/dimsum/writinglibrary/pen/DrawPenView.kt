@@ -3,18 +3,20 @@ package com.dimsum.writinglibrary.pen
 import android.app.Activity
 import android.content.Context
 import android.graphics.*
+import android.graphics.drawable.BitmapDrawable
 import android.os.Environment
 import android.util.AttributeSet
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.MotionEvent
-import android.view.View
+import androidx.constraintlayout.widget.ConstraintLayout
+import com.dimsum.writinglibrary.seal.SealView
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
 
 
-class DrawPenView : View {
+class DrawPenView : ConstraintLayout {
     private val TAG = "DrawPenView"
 
     private lateinit var mBgPaint: Paint
@@ -25,7 +27,7 @@ class DrawPenView : View {
     var mCanvasCode = IPenConfig.STROKE_TYPE_PEN
     private var mStokeBrushPen: BasePenExtend? = null
 
-    var mIsCanvasDraw = true
+    var mCanvasState = 1
     private var mPenconfig = IPenConfig.STROKE_TYPE_BRUSH
 
     val pathList = ArrayList<String>()
@@ -51,6 +53,8 @@ class DrawPenView : View {
         }
     }
 
+    private lateinit var mSealView: SealView
+
     constructor(context: Context) : super(context) {
         initParameter(context)
     }
@@ -59,7 +63,11 @@ class DrawPenView : View {
         initParameter(context)
     }
 
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
+        context,
+        attrs,
+        defStyleAttr
+    ) {
         initParameter(context)
     }
 
@@ -75,7 +83,7 @@ class DrawPenView : View {
 
     private fun initPaint() {
         mPaint = Paint().apply {
-            color = IPenConfig.PEN_CORLOUR
+            color = IPenConfig.PEN_COLOUR
             strokeWidth = IPenConfig.getPenWidth()
             style = Paint.Style.STROKE
             strokeCap = Paint.Cap.ROUND //结束的笔画为圆心
@@ -85,7 +93,7 @@ class DrawPenView : View {
             strokeMiter = 1.0f
         }
         mBgPaint = Paint().apply {
-            color = IPenConfig.PEN_CORLOUR
+            color = IPenConfig.PEN_COLOUR
         }
         mStokeBrushPen!!.setPaint(mPaint!!)
         mStokeBrushPen!!.setUpdateListener(mListener)
@@ -97,8 +105,8 @@ class DrawPenView : View {
     }
 
     fun resetColor(color: Int) {
-        IPenConfig.PEN_CORLOUR = color
-        mPaint!!.color = IPenConfig.PEN_CORLOUR
+        IPenConfig.PEN_COLOUR = color
+        mPaint!!.color = IPenConfig.PEN_COLOUR
         mStokeBrushPen!!.setPaint(mPaint!!)
     }
 
@@ -109,10 +117,13 @@ class DrawPenView : View {
     }
 
     fun resetBackground(bitmap: Bitmap?) {
-        if (bitmap == null) return
+        if (bitmap == null) {
+            setBackgroundColor(Color.WHITE)
+            return
+        }
         val width = mBitmap!!.width
         val height = mBitmap!!.height
-        zoomImg(bitmap,width,height)?.let { mCanvas?.drawBitmap(it, 0f, 0f, mBgPaint) }
+        zoomImg(bitmap, width, height)?.let { this.background = BitmapDrawable(it) }
     }
 
     fun zoomImg(bm: Bitmap, newWidth: Int, newHeight: Int): Bitmap? {
@@ -132,8 +143,8 @@ class DrawPenView : View {
     override fun onDraw(canvas: Canvas) {
         canvas.drawBitmap(mBitmap!!, 0f, 0f, mBgPaint)
         when (mCanvasCode) {
-            IPenConfig.STROKE_TYPE_PEN, IPenConfig.STROKE_TYPE_BRUSH -> mStokeBrushPen!!.draw(canvas)
-            IPenConfig.STROKE_TYPE_ERASER -> {
+            IPenConfig.STROKE_TYPE_PEN, IPenConfig.STROKE_TYPE_BRUSH, IPenConfig.STROKE_TYPE_ERASER -> mStokeBrushPen!!.draw(canvas)
+            IPenConfig.STROKE_TYPE_CLEAR -> {
                 reset(true)
             }
             IPenConfig.STROKE_TYPE_UNDO -> {
@@ -151,14 +162,20 @@ class DrawPenView : View {
         when (mCanvasCode) {
             IPenConfig.STROKE_TYPE_PEN -> {
                 mStokeBrushPen = SteelPen(mContext)
+                mPaint!!.xfermode = null
                 setPenconfig(IPenConfig.STROKE_TYPE_PEN)
             }
             IPenConfig.STROKE_TYPE_BRUSH -> {
                 mStokeBrushPen = BrushPen(mContext)
+                mPaint!!.xfermode = null
                 setPenconfig(IPenConfig.STROKE_TYPE_BRUSH)
             }
+            IPenConfig.STROKE_TYPE_ERASER -> {
+                mStokeBrushPen = Eraser(mContext)
+                mPaint!!.xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
+            }
         }
-        mIsCanvasDraw = true
+        mCanvasState = 1
         //设置
         if (mStokeBrushPen!!.mPaint == null) {
             mStokeBrushPen!!.setPaint(mPaint!!)
@@ -181,10 +198,17 @@ class DrawPenView : View {
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-        if (mIsCanvasDraw) {
+        if (event == null) {
+            return false
+        }
+        if (mCanvasState == 1) {
             val event2 = MotionEvent.obtain(event)
             mStokeBrushPen!!.onTouchEvent(event2, mCanvas)
             invalidate()
+            return true
+        } else if(mCanvasState == 3) {
+            mSealView.x = event.x - mSealView.right/2
+            mSealView.y = event.y - mSealView.bottom/2
             return true
         }
         when (event!!.action and MotionEvent.ACTION_MASK) {
@@ -236,8 +260,10 @@ class DrawPenView : View {
         var setPivotY = 0f
         setPivotX = pivotX + lessX
         setPivotY = pivotY + lessY
-        Log.e("lawwingLog", "setPivotX:" + setPivotX + "  setPivotY:" + setPivotY
-                + "  getWidth:" + width + "  getHeight:" + height)
+        Log.e(
+            "lawwingLog", "setPivotX:" + setPivotX + "  setPivotY:" + setPivotY
+                    + "  getWidth:" + width + "  getHeight:" + height
+        )
         if (setPivotX < 0 && setPivotY < 0) {
             setPivotX = 0f
             setPivotY = 0f
@@ -325,7 +351,8 @@ class DrawPenView : View {
         setDrawingCacheEnabled(false)
         pathList.add(0, path)
         mplListener.update("add")
-        setCanvasCode(IPenConfig.STROKE_TYPE_ERASER)
+        setCanvasCode(IPenConfig.STROKE_TYPE_CLEAR)
+        resetBackground(null)
     }
 
     fun setPathListListener(listener: pathListListener) {
@@ -352,5 +379,24 @@ class DrawPenView : View {
             Log.e(TAG, "", e)
         }
         return path
+    }
+
+    fun addSealView(sealView: SealView) {
+        mSealView = sealView
+        addView(sealView)
+
+        val dWidth = this.width
+        val dHeight = this.height
+        mSealView.x = dWidth * 0.7F
+        mSealView.y = dHeight * 0.6F
+    }
+
+    fun resetScale(): Boolean {
+        setScale(SCALE_MIN)
+        return true
+    }
+
+    fun resetSeal() {
+        removeAllViews()
     }
 }

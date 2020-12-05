@@ -1,1 +1,14 @@
-<resources></resources>
+<resources>
+    <string name="brush">BRUSH</string>
+    <string name="steel">STEEL</string>
+    <string name="eraser">ERASER</string>
+    <string name="undo">UNDO</string>
+    <string name="color">COLOR</string>
+    <string name="save">SAVE</string>
+    <string name="scale">SCALE</string>
+    <string name="background">BG</string>
+    <string name="seal">SEAL</string>
+    <string name="sure">SURE</string>
+    <string name="cancel">Cancel</string>
+    <string name="resetBlack">RESET TO BLACK</string>
+</resources>
