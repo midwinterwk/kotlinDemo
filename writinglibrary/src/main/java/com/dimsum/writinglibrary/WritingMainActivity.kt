@@ -37,7 +37,7 @@ class WritingMainActivity : AppCompatActivity() {
         btn_brush.setOnClickListener(this::onClick)
         btn_pen.setOnClickListener(this::onClick)
         btn_eraser.setOnClickListener(this::onClick)
-        btn_undo.setOnClickListener(this::onClick)
+        btn_clear.setOnClickListener(this::onClick)
         btn_color.setOnClickListener(this::onClick)
         btn_save.setOnClickListener(this::onClick)
         btn_scale.setOnClickListener(this::onClick)
@@ -46,7 +46,6 @@ class WritingMainActivity : AppCompatActivity() {
         btn_sure.setOnClickListener(this::onClick)
         btn_cancel.setOnClickListener(this::onClick)
 
-        btn_undo.setOnLongClickListener { drawPenView.setCanvasCode(IPenConfig.STROKE_TYPE_CLEAR); true }
         btn_color.setOnLongClickListener {
             drawPenView.resetColor(Color.BLACK)
             Toast.makeText(this, R.string.resetBlack, Toast.LENGTH_LONG).show()
@@ -64,7 +63,7 @@ class WritingMainActivity : AppCompatActivity() {
 
 //        colorPicker.subscribe { color, _ -> drawPenView.resetColor(color)}
         popup = ColorPickerPopup.Builder(this)
-            .initialColor(IPenConfig.PEN_COLOUR)
+            .initialColor(Color.RED)
             .enableAlpha(true) // Enable alpha slider or not
             .okTitle("确定")
             .cancelTitle("取消")
@@ -117,7 +116,7 @@ class WritingMainActivity : AppCompatActivity() {
                 setStrokeWidth(10)
             }
             R.id.btn_eraser -> drawPenView.setCanvasCode(IPenConfig.STROKE_TYPE_ERASER)
-            R.id.btn_undo -> drawPenView.setCanvasCode(IPenConfig.STROKE_TYPE_UNDO)
+            R.id.btn_clear -> drawPenView.setCanvasCode(IPenConfig.STROKE_TYPE_CLEAR)
             R.id.btn_save -> drawPenView.saveImge()
             R.id.btn_color ->
                 popup.show(drawPenView, object : ColorPickerObserver {

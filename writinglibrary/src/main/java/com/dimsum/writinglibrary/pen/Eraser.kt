@@ -1,14 +1,7 @@
 package com.dimsum.writinglibrary.pen
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.RectF
-import android.util.Log
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import android.graphics.*
 
 /**
  * @author shiming
@@ -18,15 +11,21 @@ import kotlinx.coroutines.launch
 class Eraser(context: Context?) : BasePenExtend(context!!) {
     override val TAG = Eraser::class.java.simpleName
 
+//    override fun draw(canvas: Canvas?) {
+//        mPaint!!.xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
+//        super.draw(canvas)
+//    }
+
+    override fun draw(canvas: Canvas?, mode :Xfermode?) {
+        mPaint!!.xfermode = mode
+        super.draw(canvas)
+    }
+
     override fun drawNeetToDo(canvas: Canvas?) {
         mPaint!!.color = Color.WHITE
         for (i in 0 until mHWPointList!!.size) {
             val point = mHWPointList!![i]
-            if (point.isPoint) {
-                drawPoint(canvas!!, point, mPaint!!)
-            } else {
-                drawToPoint(canvas!!, point, mPaint!!)
-            }
+            drawToPoint(canvas!!, point, mPaint!!)
             mCurPoint = point
         }
     }
@@ -74,31 +73,19 @@ class Eraser(context: Context?) : BasePenExtend(context!!) {
         }
         val deltaX = (x1 - x0) / steps
         val deltaY = (y1 - y0) / steps
-        val deltaW = (w1 - w0) / steps
         var x = x0
         var y = y0
-        var w = w0
+        var w = paint.strokeWidth
         for (i in 0 until steps) {
             //都是用于表示坐标系中的一块矩形区域，并可以对其做一些简单操作
             //精度不一样。Rect是使用int类型作为数值，RectF是使用float类型作为数值。
             //            Rect rect = new Rect();
             val oval = RectF()
-            oval.set((x - w / 4.0f).toFloat(), (y - w / 2.0f).toFloat(), (x + w / 4.0f).toFloat(), (y + w / 2.0f).toFloat())
+            oval.set((x - w / 2.0f).toFloat(), (y - w / 2.0f).toFloat(), (x + w / 2.0f).toFloat(), (y + w / 2.0f).toFloat())
             //最基本的实现，通过点控制线，绘制椭圆
             canvas.drawOval(oval, paint)
             x += deltaX
             y += deltaY
-            w += deltaW
         }
-    }
-
-    override fun drawPoint(canvas: Canvas, point: ControllerPoint, paint: Paint) {
-        val x = point.x.toDouble()
-        val y = point.y.toDouble()
-        val w = point.width.toDouble()
-        Log.d(TAG, "w = " + w)
-        val oval = RectF()
-        oval.set((x - w / 4.0f).toFloat(), (y - w / 2.0f).toFloat(), (x + w / 4.0f).toFloat(), (y + w / 2.0f).toFloat())
-        canvas.drawOval(oval, paint)
     }
 }

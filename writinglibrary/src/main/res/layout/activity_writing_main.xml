@@ -70,11 +70,11 @@
                 app:layout_constraintTop_toBottomOf="@+id/btn_pen" />
 
             <Button
-                android:id="@+id/btn_undo"
+                android:id="@+id/btn_clear"
                 android:layout_width="wrap_content"
                 android:layout_height="51dp"
                 android:layout_marginTop="1dp"
-                android:text="@string/undo"
+                android:text="@string/clear"
                 app:layout_constraintEnd_toEndOf="@+id/btn_eraser"
                 app:layout_constraintTop_toBottomOf="@+id/btn_eraser" />
 
@@ -83,8 +83,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="51dp"
                 android:text="@string/color"
-                app:layout_constraintEnd_toEndOf="@+id/btn_undo"
-                app:layout_constraintTop_toBottomOf="@+id/btn_undo" />
+                app:layout_constraintEnd_toEndOf="@+id/btn_clear"
+                app:layout_constraintTop_toBottomOf="@+id/btn_clear" />
 
             <Button
                 android:id="@+id/btn_save"

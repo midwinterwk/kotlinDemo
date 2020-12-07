@@ -27,6 +27,8 @@ class DrawPenView : ConstraintLayout {
     var mCanvasCode = IPenConfig.STROKE_TYPE_PEN
     private var mStokeBrushPen: BasePenExtend? = null
 
+    val mUndoStack: ArrayList<ArrayList<ControllerPoint>>? = ArrayList()
+
     var mCanvasState = 1
     private var mPenconfig = IPenConfig.STROKE_TYPE_BRUSH
 
@@ -47,6 +49,9 @@ class DrawPenView : ConstraintLayout {
     private lateinit var mplListener: pathListListener
 
     private val mListener: BasePenExtend.UpdateListener = object : BasePenExtend.UpdateListener {
+        override fun add(list: ArrayList<ControllerPoint>) {
+            mUndoStack?.add(list)
+        }
         override fun update(width: String?) {
             Log.e(TAG, "point width = " + width)
             postInvalidate()
@@ -143,13 +148,19 @@ class DrawPenView : ConstraintLayout {
     override fun onDraw(canvas: Canvas) {
         canvas.drawBitmap(mBitmap!!, 0f, 0f, mBgPaint)
         when (mCanvasCode) {
-            IPenConfig.STROKE_TYPE_PEN, IPenConfig.STROKE_TYPE_BRUSH, IPenConfig.STROKE_TYPE_ERASER -> mStokeBrushPen!!.draw(canvas)
+            IPenConfig.STROKE_TYPE_PEN, IPenConfig.STROKE_TYPE_BRUSH -> mStokeBrushPen!!.draw(canvas)
+            IPenConfig.STROKE_TYPE_ERASER -> mStokeBrushPen!!.draw(canvas, null)
             IPenConfig.STROKE_TYPE_CLEAR -> {
                 reset(true)
             }
             IPenConfig.STROKE_TYPE_UNDO -> {
                 reset(false)
-                mStokeBrushPen!!.undo(mCanvas!!)
+                if (mUndoStack!!.size > 0) {
+                    mUndoStack!!.removeAt(mUndoStack!!.size - 1)
+                    mUndoStack.forEach {
+                        mStokeBrushPen!!.undo(mCanvas!!, it)
+                    }
+                }
             }
             else -> Log.e(TAG, "onDraw" + Integer.toString(mCanvasCode))
         }
@@ -188,13 +199,13 @@ class DrawPenView : ConstraintLayout {
         mPaint!!.xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
         mCanvas!!.drawPaint(mPaint!!)
         mPaint!!.xfermode = null
+        mStokeBrushPen!!.clear()
         if (isClearAll) {
-            mStokeBrushPen!!.clearAll()
-        } else {
-            mStokeBrushPen!!.clear()
+            mUndoStack!!.clear()
         }
         //这里处理的不太好 需要优化
         mCanvasCode = mPenconfig
+        setCanvasCode(mCanvasCode)
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {

@@ -3,6 +3,7 @@ package com.dimsum.writinglibrary.pen
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.Xfermode
 import android.view.MotionEvent
 
 abstract class BasePenExtend(context: Context) : BasePen() {
@@ -13,8 +14,6 @@ abstract class BasePenExtend(context: Context) : BasePen() {
     var mPointList: ArrayList<ControllerPoint> = ArrayList<ControllerPoint>()
     var mLastPoint: ControllerPoint = ControllerPoint(0F, 0F)
     var mPaint: Paint? = null
-
-    val mUndoStack: ArrayList<ArrayList<ControllerPoint>>? = ArrayList()
 
     private var mBaseWidth = 0F
     private var mLastVel = 0F
@@ -43,6 +42,7 @@ abstract class BasePenExtend(context: Context) : BasePen() {
         drawNeetToDo(canvas)
     }
 
+    open fun draw(canvas: Canvas?, mode :Xfermode?) {}
 
     override fun onTouchEvent(event: MotionEvent?, canvas: Canvas?): Boolean {
         // event会被下一次事件重用，这里必须生成新的，否则会有问题
@@ -199,7 +199,9 @@ abstract class BasePenExtend(context: Context) : BasePen() {
             }
         }
 
-        mUndoStack!!.add(mHWPointList!!.clone() as java.util.ArrayList<ControllerPoint>)
+        if (mListener != null) {
+            mListener.add(mHWPointList!!.clone() as java.util.ArrayList<ControllerPoint>)
+        }
 
         // 手指up 我画到纸上上
         draw(canvas)
@@ -226,28 +228,19 @@ abstract class BasePenExtend(context: Context) : BasePen() {
     }
 
     interface UpdateListener {
+        fun add(list: ArrayList<ControllerPoint>)
+
         fun update(string: String?)
     }
 
-    fun undo(canvas: Canvas?) {
-        if (mUndoStack!!.size > 0) {
-            mUndoStack!!.removeAt(mUndoStack!!.size - 1)
-            mUndoStack.forEach {
-                mHWPointList = it
-                draw(canvas)
-            }
-        }
-
+    fun undo(canvas: Canvas?, list: ArrayList<ControllerPoint>) {
+        mHWPointList = list
+        draw(canvas)
     }
 
     fun clear() {
         mPointList.clear()
         mHWPointList!!.clear()
-    }
-
-    fun clearAll() {
-        clear()
-        mUndoStack!!.clear()
     }
 
     private fun getNewPaint(mPaint: Paint): Paint? {
@@ -267,7 +260,7 @@ abstract class BasePenExtend(context: Context) : BasePen() {
         doNeetToDo(canvas, point, paint)
     }
 
-    abstract fun drawPoint(canvas: Canvas, point: ControllerPoint, paint: Paint)
+    open fun drawPoint(canvas: Canvas, point: ControllerPoint, paint: Paint) {}
 
     abstract fun doNeetToDo(canvas: Canvas, point: ControllerPoint, paint: Paint)
 }
