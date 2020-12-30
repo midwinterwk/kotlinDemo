@@ -11,11 +11,10 @@ abstract class AbstractLogger {
     protected var level = 0
 
     //责任链中的下一个元素
-    protected var nextLogger: AbstractLogger? = null
+    private var nextLogger: AbstractLogger? = null
 
-    fun setNextLogger(nextLogger: AbstractLogger): AbstractLogger {
+    fun setNextLogger(nextLogger: AbstractLogger) {
         this.nextLogger = nextLogger
-        return this
     }
 
     fun logMessage(level: Int, message: String?) {

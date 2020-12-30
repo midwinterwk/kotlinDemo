@@ -1,8 +1,5 @@
 package com.dimsum.structuralpattern.flyweight
 
-import android.R.attr
-
-
 class Circle(val color: String) : Shape {
     private var x: Int? = null
     private var y: Int? = null
