@@ -1,3 +1,5 @@
+include ':jetpack'
+include ':designPattern'
 include ':app'
 include ':writinglibrary'
 rootProject.name = "KotlinDemo"

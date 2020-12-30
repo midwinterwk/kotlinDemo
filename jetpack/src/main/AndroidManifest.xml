@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.dimsum.jetpack">
+
+    <application>
+        <activity android:name=".JetPackMainActivity"></activity>
+        <activity android:name=".roombasic.RoomMainActivity"></activity>
+    </application>
+
+</manifest>

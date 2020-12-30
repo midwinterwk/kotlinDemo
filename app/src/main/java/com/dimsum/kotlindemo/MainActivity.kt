@@ -7,6 +7,7 @@ import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.dimsum.designpattern.DesignMainActivity
+import com.dimsum.jetpack.JetPackMainActivity
 import com.dimsum.writinglibrary.WritingMainActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -19,7 +20,7 @@ class MainActivity : AppCompatActivity() {
             it.adapter = ArrayAdapter<String>(
                 this,
                 android.R.layout.simple_list_item_1,
-                arrayListOf<String>("Writing Demo", "Design Pattern")
+                arrayListOf<String>("Writing Demo", "Design Pattern", "JetPack")
             )
             it.onItemClickListener = AdapterView.OnItemClickListener { _, view, _, _ ->
                 val title = (view as TextView).text
@@ -28,6 +29,7 @@ class MainActivity : AppCompatActivity() {
                         intent = Intent(this@MainActivity, WritingMainActivity::class.java)
                     }
                     "Design Pattern" -> intent = Intent(this@MainActivity, DesignMainActivity::class.java)
+                    "JetPack" -> intent = Intent(this, JetPackMainActivity::class.java)
                 }
                 startActivity(intent)
             }
