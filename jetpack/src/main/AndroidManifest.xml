@@ -3,8 +3,9 @@
     package="com.dimsum.jetpack">
 
     <application>
-        <activity android:name=".JetPackMainActivity"></activity>
-        <activity android:name=".roombasic.RoomMainActivity"></activity>
+        <activity android:name=".navigation.NavMainActivity"></activity>
+        <activity android:name=".JetPackMainActivity" />
+        <activity android:name=".roombasic.RoomMainActivity" />
     </application>
 
 </manifest>

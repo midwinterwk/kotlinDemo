@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.dimsum.jetpack.navigation.NavMainActivity
 import com.dimsum.jetpack.roombasic.RoomMainActivity
 import kotlinx.android.synthetic.main.activity_jetpack_main.*
 
@@ -18,14 +19,13 @@ class JetPackMainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_jetpack_main)
         ctx = this
         rv_jetPack.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-        val names = arrayOf("ROOM")
+        val names = arrayOf("ROOM","NAV")
         val mAdapter = JetPackAdapter(names)
         rv_jetPack.adapter = mAdapter
         mAdapter.setOnItemClick(View.OnClickListener { v ->
             when (v.tag as String) {
-                    "ROOM" -> {
-                        intent = Intent(ctx, RoomMainActivity::class.java)
-                    }
+                    "ROOM" -> intent = Intent(ctx, RoomMainActivity::class.java)
+                    "NAV" -> intent = Intent(ctx, NavMainActivity::class.java)
                 }
                 startActivity(intent)
         })
